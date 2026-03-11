@@ -4,98 +4,119 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kripto Haberler - uzmanmuzaffer</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { 
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: #333;
-            line-height: 1.6;
-            min-height: 100vh;
-            padding: 20px;
-        }
-        .container { max-width: 900px; margin: 0 auto; }
-        header {
-            background: white;
-            padding: 40px 30px;
-            border-radius: 10px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            margin-bottom: 30px;
-            text-align: center;
-        }
-        h1 { color: #667eea; margin-bottom: 10px; font-size: 2.5em; }
-        .subtitle { color: #666; font-size: 1.1em; }
-        .posts {
-            display: grid;
-            gap: 20px;
-        }
-        .post-card {
-            background: white;
-            padding: 25px;
-            border-radius: 8px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            transition: transform 0.3s, box-shadow 0.3s;
-        }
-        .post-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 30px rgba(0,0,0,0.2);
-        }
-        .post-card h2 {
-            color: #667eea;
-            margin-bottom: 10px;
-            font-size: 1.5em;
-        }
-        .post-card a {
-            color: #667eea;
-            text-decoration: none;
-            font-weight: 600;
-            display: inline-block;
-            margin-top: 15px;
-        }
-        .post-card a:hover { text-decoration: underline; }
-        .post-date { color: #999; font-size: 0.9em; }
-        .no-posts {
-            background: white;
-            padding: 40px;
-            text-align: center;
-            border-radius: 8px;
-            color: #999;
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
+    <meta name="description" content="Günlük kripto haberleri ve analizler - AI tarafından oluşturulmuş">
+    <meta property="og:title" content="Kripto Haberler">
+    <meta property="og:description" content="Günlük kripto haberleri ve analizler">
+    <meta property="og:type" content="website">
 </head>
 <body>
     <div class="container">
         <header>
             <h1>🔗 Kripto Haberler</h1>
-            <p class="subtitle">Günlük kripto analiz ve haberler - AI tarafından oluşturulmuş</p>
+            <p class="subtitle">Günlük kripto analiz ve haberler</p>
+            <p style="color: #999; font-size: 0.95em; margin-top: 15px;">
+                🤖 <strong>AI Powered</strong> - Groq AI ile otomatik oluşturulmuş
+            </p>
+            <div class="stats">
+                <div class="stat">
+                    <div class="stat-number" id="post-count">0</div>
+                    <div class="stat-label">Yazı</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number" id="update-time">--:--</div>
+                    <div class="stat-label">Son Güncelleme</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number">📚</div>
+                    <div class="stat-label">Okuma Süresi</div>
+                </div>
+            </div>
         </header>
-        
-        <div class="posts" id="posts-container">
-            <div class="no-posts">Henüz yazı yok. Yakında geliyor...</div>
+
+        <div class="posts-wrapper" id="posts-container">
+            <div class="no-posts">
+                <div class="no-posts-icon">📝</div>
+                <p>Yazılar yükleniyor...</p>
+            </div>
         </div>
     </div>
 
     <script>
-        // posts.json dosyasından yazıları yükle
+        // İkonlar
+        const icons = ['🔐', '💰', '📊', '⚡', '🚀', '💎', '📈', '🎯', '🌟', '💡'];
+        
+        // Okuma süresi hesapla
+        function calculateReadTime(text) {
+            const wordsPerMinute = 200;
+            const words = text.split(/\s+/).length;
+            const minutes = Math.ceil(words / wordsPerMinute);
+            return minutes + ' dk';
+        }
+
+        // Posts yükle
         fetch('posts.json')
             .then(r => r.json())
             .then(posts => {
-                if (posts.length === 0) return;
                 const container = document.getElementById('posts-container');
+                
+                if (posts.length === 0) {
+                    container.innerHTML = `
+                        <div class="no-posts">
+                            <div class="no-posts-icon">⏳</div>
+                            <p>Henüz yazı yok. Yakında geliyor...</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                // İstatistikleri güncelle
+                document.getElementById('post-count').textContent = posts.length;
+                
+                // Son güncelleme zamanı
+                if (posts.length > 0) {
+                    const lastDate = posts[0].date;
+                    document.getElementById('update-time').textContent = 'Bugün';
+                }
+
                 container.innerHTML = '';
-                posts.sort((a, b) => new Date(b.date) - new Date(a.date)).forEach(post => {
+                
+                posts.forEach((post, index) => {
+                    const icon = icons[index % icons.length];
+                    const cardClass = `alt${(index % 3) + 1}`;
+                    const readTime = calculateReadTime(post.content);
+                    
                     const card = document.createElement('div');
                     card.className = 'post-card';
                     card.innerHTML = `
-                        <div class="post-date">${post.date}</div>
-                        <h2>${post.title}</h2>
-                        <p>${post.preview || post.content.substring(0, 150)}...</p>
-                        <a href="${post.slug}.html">Devamını Oku →</a>
+                        <div class="post-image ${cardClass}">${icon}</div>
+                        <div class="post-content">
+                            <div>
+                                <div class="post-date">📅 ${post.date}</div>
+                                <h2>${post.title}</h2>
+                                <div class="post-preview">${post.preview || post.content.substring(0, 150)}...</div>
+                            </div>
+                            <div class="post-footer">
+                                <div class="post-meta">
+                                    <span>⏱️ ${readTime}</span>
+                                    <span>✍️ AI Oluşturuldu</span>
+                                </div>
+                                <a href="${post.slug}.html" class="read-btn">Oku →</a>
+                            </div>
+                        </div>
                     `;
                     container.appendChild(card);
                 });
             })
-            .catch(e => console.log('posts.json bulunamadı'));
+            .catch(e => {
+                console.log('posts.json hatası:', e);
+                document.getElementById('posts-container').innerHTML = `
+                    <div class="no-posts">
+                        <div class="no-posts-icon">⚠️</div>
+                        <p>Hata: posts.json yüklenemedi</p>
+                    </div>
+                `;
+            });
     </script>
 </body>
 </html>
