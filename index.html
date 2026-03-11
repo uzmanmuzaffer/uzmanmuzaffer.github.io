@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kripto Haberler - uzmanmuzaffer</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container { max-width: 900px; margin: 0 auto; }
+        header {
+            background: white;
+            padding: 40px 30px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        h1 { color: #667eea; margin-bottom: 10px; font-size: 2.5em; }
+        .subtitle { color: #666; font-size: 1.1em; }
+        .posts {
+            display: grid;
+            gap: 20px;
+        }
+        .post-card {
+            background: white;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .post-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+        }
+        .post-card h2 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 1.5em;
+        }
+        .post-card a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-block;
+            margin-top: 15px;
+        }
+        .post-card a:hover { text-decoration: underline; }
+        .post-date { color: #999; font-size: 0.9em; }
+        .no-posts {
+            background: white;
+            padding: 40px;
+            text-align: center;
+            border-radius: 8px;
+            color: #999;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔗 Kripto Haberler</h1>
+            <p class="subtitle">Günlük kripto analiz ve haberler - AI tarafından oluşturulmuş</p>
+        </header>
+        
+        <div class="posts" id="posts-container">
+            <div class="no-posts">Henüz yazı yok. Yakında geliyor...</div>
+        </div>
+    </div>
+
+    <script>
+        // posts.json dosyasından yazıları yükle
+        fetch('posts.json')
+            .then(r => r.json())
+            .then(posts => {
+                if (posts.length === 0) return;
+                const container = document.getElementById('posts-container');
+                container.innerHTML = '';
+                posts.sort((a, b) => new Date(b.date) - new Date(a.date)).forEach(post => {
+                    const card = document.createElement('div');
+                    card.className = 'post-card';
+                    card.innerHTML = `
+                        <div class="post-date">${post.date}</div>
+                        <h2>${post.title}</h2>
+                        <p>${post.preview || post.content.substring(0, 150)}...</p>
+                        <a href="${post.slug}.html">Devamını Oku →</a>
+                    `;
+                    container.appendChild(card);
+                });
+            })
+            .catch(e => console.log('posts.json bulunamadı'));
+    </script>
+</body>
+</html>
